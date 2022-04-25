@@ -2,10 +2,6 @@ import { logging, Context, u128, ContractPromiseBatch, PersistentSet } from "nea
 
 import { AccountId, ONE_NEAR, asNEAR, XCC_GAS } from "../../utils";
 
-
-
-
-
 @nearBindgen
 export class Contract {
 
@@ -13,11 +9,11 @@ export class Contract {
   private winner: AccountId;
   private last_played: AccountId;
   private active: bool = true;
-  private bank: u128 = ONE_NEAR;
+  private bank: u128 = ONE_NEAR; //for trial
   private lastbid: u128 = ONE_NEAR;
   private totalbid: u128 = ONE_NEAR;
-  private power_down: u128 = ONE_NEAR;
-  private power: number  = 0;
+  private power_down: u128 = ONE_NEAR; // near coin required to call capitulate function
+  private power: number  = 0;  //when power reaches 10, last bidder wins the game. 
   private power_decrease: number = -1;
  
   
@@ -54,22 +50,15 @@ export class Contract {
   }
 
 
-
-
-
- 
-
   // --------------------------------------------------------------------------
   // Public CHANGE methods
   // --------------------------------------------------------------------------
 
   /**
-   * "Pay to play"
-   *
-   * First time is free to play and you may win!
-   *
-   * If you've already played once then any other play costs you a fee.
-   * This fee is calculated as 1 NEAR X the square of the total number of unique players
+   * Bid to win
+   * Compete with other people trying to bid more than them. 
+   * The last bidder finding the sweet number 10 wins the jackpot accumulated from biddings. 
+   * 
    */
   @mutateState()
   bid(): void {
@@ -81,20 +70,18 @@ export class Contract {
     logging.log("last bid is: "+asNEAR(this.lastbid)+" NEAR!");
     logging.log("total bid is: "+asNEAR(this.totalbid)+" NEAR!");
     
-    // if you've played before then you have to pay extra
+  
     if (this.players.has(signer)) {
-      //const fee = this.fee();
-     // assert(Context.attachedDeposit >= fee, this.generate_fee_message(fee));
-      //this.increase_pot();
 
-      // if it's your first time then you may win for the price of gas
+
+     
     } else {
       this.players.add(signer);
     }
     
     
 
-    
+    //power increases by 3 if one bids again, if bidding person changes power decreases by 2. 
     if (this.last_played == signer)
     {
       this.power = this.power+3;
@@ -105,7 +92,7 @@ export class Contract {
 
     logging.log("new monarch power is: "+this.power.toString());
 
-    if (this.power==10)
+    if (this.power==10) //when power reaches 10, last bidder wins the game. 
     {
       this.winner = signer;
       this.payout();
@@ -117,7 +104,7 @@ export class Contract {
 
 
 
-  @mutateState()
+  @mutateState() //resetting game
   reset(): void {
     this.assert_self();
     this.players.clear();
@@ -130,13 +117,13 @@ export class Contract {
     this.power=0;
   }
   
-  @mutateState()
+  @mutateState() //showing status of the game, also via script
   status(): void {
     logging.log("last bid is: "+asNEAR(this.lastbid)+" NEAR!");
     logging.log("total bid is: "+asNEAR(this.totalbid)+" NEAR!");
     logging.log(" monarch power is: "+this.power.toString());
   }
- @mutateState()
+ @mutateState() // give away some coin to change power dynamic with another integer. 
  capitulate(): void {
   assert(Context.attachedDeposit >= this.power_down, "You should capitulate higher than"+ this.power_down.toString());
 
