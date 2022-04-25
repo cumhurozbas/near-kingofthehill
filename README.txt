@@ -38,3 +38,13 @@ There are other view functions i havent talked in loom video, but i believe they
   
 Was very fun, and i am glad NEAR is supporting potential devs. I want to be part of the future.  
   
+EDIT : scripts are added, can run commands easier. An example script running:
+ "./scripts/1.init.sh" then
+ "export CONTRACT="<dev_id>" then
+ "near login" then
+ "near call $CONTRACT init '{"owner":"<your-account-id.testnet>"}' --accountId $CONTRACT" then
+ "export PLAYER="<your-account-id.testnet>" then
+ "export MONEY="<number>" then
+ "./scripts/2.bid.sh" calls and bids for PLAYER
+ "./scripts/4.status.sh" reports current game status
+ "./scripts/3.reset.sh" resets game
