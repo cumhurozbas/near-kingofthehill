@@ -129,7 +129,13 @@ export class Contract {
     this.totalbid= ONE_NEAR;
     this.power=0;
   }
-
+  
+  @mutateState()
+  status(): void {
+    logging.log("last bid is: "+asNEAR(this.lastbid)+" NEAR!");
+    logging.log("total bid is: "+asNEAR(this.totalbid)+" NEAR!");
+    logging.log(" monarch power is: "+this.power.toString());
+  }
  @mutateState()
  capitulate(): void {
   assert(Context.attachedDeposit >= this.power_down, "You should capitulate higher than"+ this.power_down.toString());
